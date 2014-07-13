@@ -1,0 +1,125 @@
+--- gcc-4.9.0/libgcc/config/t-hardfp-sf	1970-01-01 01:00:00.000000000 +0100
++++ gcc-4.9.0-patched/libgcc/config/t-hardfp-sf	2014-05-07 00:14:27.093320928 +0200
+@@ -0,0 +1,32 @@
++# Copyright (C) 2014 Free Software Foundation, Inc.
++
++# This file is part of GCC.
++
++# GCC is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 3, or (at your option)
++# any later version.
++
++# GCC is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++
++# You should have received a copy of the GNU General Public License
++# along with GCC; see the file COPYING3.  If not see
++# <http://www.gnu.org/licenses/>.
++
++hardfp_float_modes := sf
++# di and ti are provided by libgcc2.c where needed.
++hardfp_int_modes := si
++hardfp_extensions :=
++hardfp_truncations :=
++
++# Emulate 64 bit float:
++FPBIT = true
++DPBIT = true
++# Don't build functions handled by 32 bit hardware:
++LIB2FUNCS_EXCLUDE = _addsub_sf _mul_sf _div_sf \
++    _fpcmp_parts_sf _compare_sf _eq_sf _ne_sf _gt_sf _ge_sf \
++    _lt_sf _le_sf _unord_sf _si_to_sf _sf_to_si _negate_sf \
++    _thenan_sf _sf_to_usi _usi_to_sf
+--- gcc-4.9.0/libgcc/config.host	2014-03-27 16:40:31.000000000 +0100
++++ gcc-4.9.0-patched/libgcc/config.host	2014-05-07 00:10:16.565329373 +0200
+@@ -140,11 +140,24 @@ microblaze*-*-*)
+ 	cpu_type=microblaze
+ 	;;
+ mips*-*-*)
+-	# All MIPS targets provide a full set of FP routines.
++	# All MIPS targets provide a full set of FP routines except r5900.
+ 	cpu_type=mips
+ 	tmake_file="mips/t-mips"
+ 	if test "${libgcc_cv_mips_hard_float}" = yes; then
+-		tmake_file="${tmake_file} t-hardfp-sfdf t-hardfp"
++	    case ${host} in
++	      mips64r5900* | mipsr5900*)
++	        # r5900 doesn't support df.
++		tmake_file="${tmake_file} t-hardfp-sf t-hardfp"
++	        ;;
++	      *)
++	        if test x$with_arch = xr5900; then
++	            # r5900 doesn't support df.
++		    tmake_file="${tmake_file} t-hardfp-sf t-hardfp"
++		else
++		    tmake_file="${tmake_file} t-hardfp-sfdf t-hardfp"
++	        fi
++	        ;;
++	    esac
+ 	else
+ 		tmake_file="${tmake_file} t-softfp-sfdf"
+ 	fi
+@@ -794,7 +807,9 @@ mips*-*-linux*)				# Linux MIPS, either
+ 	    # instructions that are not supported on r5900.
+ 	    ;;
+ 	  *)
+-	    tmake_file="${tmake_file} mips/t-mips16 t-slibgcc-libgcc"
++	    if test x$with_arch != xr5900; then
++		tmake_file="${tmake_file} mips/t-mips16 t-slibgcc-libgcc"
++	    fi
+ 	    ;;
+ 	esac
+ 	md_unwind_header=mips/linux-unwind.h
+--- gcc-4.9.0-patched/libgcc/config.host	2014-06-28 00:23:48.933702480 +0200
++++ gcc-4.9.0-patched/libgcc/config.host	2014-06-28 00:30:24.177701548 +0200
+@@ -815,7 +815,10 @@ mips*-*-linux*)				# Linux MIPS, either
+ 	md_unwind_header=mips/linux-unwind.h
+ 	;;
+ mips*-sde-elf*)
+-	tmake_file="$tmake_file mips/t-crtstuff mips/t-mips16"
++	tmake_file="$tmake_file mips/t-crtstuff"
++	if test x$with_arch != xr5900; then
++		tmake_file="$tmake_file mips/t-mips16"
++	fi
+ 	case "${with_newlib}" in
+ 	  yes)
+ 	    # newlib / libgloss.
+@@ -843,7 +846,10 @@ mipsisa64sb1-*-elf* | mipsisa64sb1el-*-e
+ 	extra_parts="$extra_parts crti.o crtn.o"
+ 	;;
+ mips-*-elf* | mipsel-*-elf*)
+-	tmake_file="$tmake_file mips/t-elf mips/t-crtstuff mips/t-mips16"
++	tmake_file="$tmake_file mips/t-elf mips/t-crtstuff"
++	if test x$with_arch != xr5900; then
++		tmake_file="$tmake_file mips/t-mips16"
++	fi
+ 	extra_parts="$extra_parts crti.o crtn.o"
+ 	;;
+ mipsr5900-*-elf* | mipsr5900el-*-elf*)
+@@ -851,7 +857,10 @@ mipsr5900-*-elf* | mipsr5900el-*-elf*)
+ 	extra_parts="$extra_parts crti.o crtn.o"
+ 	;;
+ mips64-*-elf* | mips64el-*-elf*)
+-	tmake_file="$tmake_file mips/t-elf mips/t-crtstuff mips/t-mips16"
++	tmake_file="$tmake_file mips/t-elf mips/t-crtstuff"
++	if test x$with_arch != xr5900; then
++		tmake_file="$tmake_file mips/t-mips16"
++	fi
+ 	extra_parts="$extra_parts crti.o crtn.o"
+ 	;;
+ mips64r5900-*-elf* | mips64r5900el-*-elf*)
+@@ -867,7 +876,10 @@ mips64orion-*-elf* | mips64orionel-*-elf
+ 	extra_parts="$extra_parts crti.o crtn.o"
+ 	;;
+ mips*-*-rtems*)
+-	tmake_file="$tmake_file mips/t-elf mips/t-crtstuff mips/t-mips16"
++	tmake_file="$tmake_file mips/t-elf mips/t-crtstuff"
++	if test x$with_arch != xr5900; then
++		tmake_file="$tmake_file mips/t-mips16"
++	fi
+ 	extra_parts="$extra_parts crti.o crtn.o"
+ 	;;
+ mips-wrs-vxworks)

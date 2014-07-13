@@ -33,6 +33,8 @@ config BR2_mips_64
 config BR2_mips_64r2
 	bool "mips 64r2"
 	depends on BR2_ARCH_IS_64
+config BR2_mips_r5900
+	bool "mips r5900"
 endchoice
 
 
@@ -63,6 +65,31 @@ config BR2_MIPS_SOFT_FLOAT
 	  floating point functions, then everything will need to be
 	  compiled with soft floating point support (-msoft-float).
 
+choice
+	prompt "Target FPU format"
+	default BR2_MIPS_FPU32 if !BR2_ARCH_IS_64
+	default BR2_MIPS_FPU64 if BR2_ARCH_IS_64
+config BR2_MIPS_FPU32
+	bool "32 bit"
+config BR2_MIPS_FPU64
+	bool "64 bit"
+endchoice
+
+config BR2_GCC_TARGET_FPU
+	default "single"	if BR2_MIPS_FPU32
+	default "default"	if BR2_MIPS_FPU64
+
+choice
+	prompt "Use ll/sc instructions"
+	default BR2_MIPS_LLSC_DEFAULT
+config BR2_MIPS_LLSC
+	bool "Use"
+config BR2_MIPS_NOLLSC
+	bool "Don't use"
+config BR2_MIPS_LLSC_DEFAULT
+	bool "Default"
+endchoice
+
 config BR2_ARCH
 	default "mips"		if BR2_mips
 	default "mipsel"	if BR2_mipsel
@@ -82,6 +109,7 @@ config BR2_GCC_TARGET_ARCH
 	default "mips32r2"	if BR2_mips_32r2
 	default "mips64"	if BR2_mips_64
 	default "mips64r2"	if BR2_mips_64r2
+	default "r5900"		if BR2_mips_r5900
 
 config BR2_MIPS_OABI32
 	bool
