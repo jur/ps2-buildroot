@@ -1,0 +1,10 @@
+--- sdl-1.2.15/src/video/ps2gs/SDL_gsyuv.c	2014-08-03 13:17:45.538487557 +0200
++++ sdl-1.2.15/src/video/ps2gs/SDL_gsyuv.c	2014-08-03 13:18:13.618487551 +0200
+@@ -27,7 +27,6 @@
+ #include <unistd.h>
+ #include <sys/ioctl.h>
+ #include <sys/mman.h>
+-#include <asm/page.h>		/* For definition of PAGE_SIZE */
+ 
+ #include "SDL_video.h"
+ #include "SDL_gsyuv_c.h"
