@@ -1,0 +1,14 @@
+config BR2_PACKAGE_JUHUTUBE
+	bool "juhutube"
+	depends on BR2_PACKAGE_YOUTUBE_DL
+	depends on BR2_PACKAGE_JSON_C
+	depends on BR2_PACKAGE_SDL
+	depends on BR2_PACKAGE_SDL_IMAGE
+	depends on BR2_PACKAGE_SDL_TTF
+	depends on BR2_PACKAGE_MPLAYER_MPLAYER
+	depends on BR2_PACKAGE_WGET
+	depends on BR2_PACKAGE_LIBCURL
+	help
+	  Youtube player for embedded systems.
+
+	  https://github.com/jur/juhutube

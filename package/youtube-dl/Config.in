@@ -1,0 +1,9 @@
+config BR2_PACKAGE_YOUTUBE_DL
+	bool "youtube-dl"
+	depends on BR2_PACKAGE_PYTHON
+	depends on BR2_PACKAGE_PYTHON_PYEXPAT
+	depends on BR2_PACKAGE_PYTHON_ZLIB
+	help
+	  Youtube downloader.
+
+	  http://rg3.github.io/youtube-dl/
