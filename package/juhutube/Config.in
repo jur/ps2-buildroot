@@ -5,8 +5,8 @@ config BR2_PACKAGE_JUHUTUBE
 	depends on BR2_PACKAGE_SDL
 	depends on BR2_PACKAGE_SDL_IMAGE
 	depends on BR2_PACKAGE_SDL_TTF
-	depends on BR2_PACKAGE_MPLAYER_MPLAYER
-	depends on BR2_PACKAGE_WGET
+	depends on BR2_PACKAGE_MPLAYER_MPLAYER || BR2_PACKAGE_FFMPEG_FFPLAY
+	depends on BR2_PACKAGE_WGET || BR2_PACKAGE_CURL
 	depends on BR2_PACKAGE_LIBCURL
 	help
 	  Youtube player for embedded systems.

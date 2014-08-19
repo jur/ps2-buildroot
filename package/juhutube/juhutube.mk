@@ -4,11 +4,11 @@
 #
 ################################################################################
 
-JUHUTUBE_VERSION = da038b5aa2c2c76cc62b788470dd7ea477cafef1
+JUHUTUBE_VERSION = 14ec4211a89d063b27ebcb07ef2dd2f26153ce28
 JUHUTUBE_SITE = git://github.com/jur/juhutube
 JUHUTUBE_LICENSE = BSD-3c
 JUHUTUBE_LICENSE_FILES = LICENSE
-JUHUTUBE_DEPENDENCIES = youtube-dl libjson sdl sdl_image sdl_ttf wget mplayer libcurl
+JUHUTUBE_DEPENDENCIES = libjson sdl sdl_image sdl_ttf libcurl
 
 define JUHUTUBE_BUILD_CMDS
 	$(MAKE) CROSS_COMPILE="$(TARGET_CROSS)" -C $(@D) all
