@@ -1,0 +1,11 @@
+Call SDL_Quit() when stopped by a signal, otherwise the GUI will not be usable.
+--- ffmpeg-1.2.7/ffplay.c	2014-08-19 19:05:39.940678794 +0200
++++ ffmpeg-1.2.7/ffplay.c	2014-08-20 18:04:56.025859788 +0200
+@@ -1058,6 +1058,7 @@ static int video_open(VideoState *is, in
+         fprintf(stderr, "SDL: could not set video mode - exiting\n");
+         do_exit(is);
+     }
++    atexit(SDL_Quit);
+     if (!window_title)
+         window_title = input_filename;
+     SDL_WM_SetCaption(window_title, window_title);
