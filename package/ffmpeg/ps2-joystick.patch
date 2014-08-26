@@ -1,0 +1,65 @@
+--- ffmpeg-1.2.7/ffplay.c	2014-08-27 01:04:08.516418123 +0200
++++ ffmpeg-1.2.7/ffplay.c	2014-08-27 01:15:48.980406156 +0200
+@@ -2984,6 +2984,33 @@ static void event_loop(VideoState *cur_s
+         double x;
+         refresh_loop_wait_event(cur_stream, &event);
+         switch (event.type) {
++        case SDL_JOYBUTTONDOWN:
++		switch(event.jbutton.button) {
++                case 1: /* Cross */
++                case 9: /* Start */
++                    toggle_pause(cur_stream);
++		    break;
++		case 3: /* Circle */
++                    do_exit(cur_stream);
++                    break;
++                case 2: /* Triangle */
++                    toggle_audio_display(cur_stream);
++                    break;
++                case 8: /* Select */
++                    step_to_next_frame(cur_stream);
++                    break;
++                case 5: /* R1 */
++                    stream_cycle_channel(cur_stream, AVMEDIA_TYPE_AUDIO);
++                    break;
++                case 4: /* L1 */
++                    stream_cycle_channel(cur_stream, AVMEDIA_TYPE_VIDEO);
++                    break;
++                case 0: /* Square */
++                    stream_cycle_channel(cur_stream, AVMEDIA_TYPE_SUBTITLE);
++                    break;
++		}
++            break;
++
+         case SDL_KEYDOWN:
+             if (exit_on_keydown) {
+                 do_exit(cur_stream);
+@@ -3344,6 +3371,7 @@ int main(int argc, char **argv)
+     int flags;
+     VideoState *is;
+     char dummy_videodriver[] = "SDL_VIDEODRIVER=dummy";
++    SDL_Joystick *joystick = NULL;
+ 
+     av_log_set_flags(AV_LOG_SKIP_REPEATED);
+     parse_loglevel(argc, argv, options);
+@@ -3378,7 +3406,7 @@ int main(int argc, char **argv)
+     if (display_disable) {
+         video_disable = 1;
+     }
+-    flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
++    flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK;
+     if (audio_disable)
+         flags &= ~SDL_INIT_AUDIO;
+     if (display_disable)
+@@ -3400,6 +3428,11 @@ int main(int argc, char **argv)
+ #endif
+     }
+ 
++    if (SDL_NumJoysticks() > 0) {
++        joystick = SDL_JoystickOpen(0);
++        SDL_JoystickEventState(SDL_ENABLE);
++    }
++
+     SDL_EventState(SDL_ACTIVEEVENT, SDL_IGNORE);
+     SDL_EventState(SDL_SYSWMEVENT, SDL_IGNORE);
+     SDL_EventState(SDL_USEREVENT, SDL_IGNORE);
