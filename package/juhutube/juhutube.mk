@@ -22,4 +22,9 @@ define JUHUTUBE_INSTALL_TARGET_CMDS
 	$(MAKE) CROSS_COMPILE="$(TARGET_CROSS)" CHROOTDIR="$(TARGET_DIR)" PREFIX="/usr" -C $(@D)/samples/navigator install
 endef
 
+define JUHUTUBE_INSTALL_INIT_SYSV
+	$(INSTALL) -D -m 755 package/juhutube/S95juhutube \
+		$(TARGET_DIR)/etc/init.d/S95juhutube
+endef
+
 $(eval $(generic-package))

@@ -1,0 +1,47 @@
+#!/bin/sh
+# Start and stop youtube player.
+#
+
+RETVAL=0
+
+start() {
+	echo -n "Starting Juhutube services: "
+	export HOME=/root
+	youtubeplayer.sh &
+	RETVAL=$?
+	echo "done"
+
+	return $RETVAL
+}	
+
+stop() {
+	echo -n "Shutting down SMB services: "
+	kill `pidof youtubeplayer.sh`
+	RETVAL=$?
+	echo "done"
+
+	return $RETVAL
+}	
+
+restart() {
+	stop
+	sleep 2
+	start
+}	
+
+case "$1" in
+  start)
+  	start
+	;;
+  stop)
+  	stop
+	;;
+  restart)
+  	restart
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart|reload}"
+	exit 1
+esac
+
+exit $?
