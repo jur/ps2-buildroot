@@ -15,9 +15,20 @@ start() {
 }	
 
 stop() {
-	echo -n "Shutting down SMB services: "
-	kill `pidof youtubeplayer.sh`
+	echo -n "Shutting down Juhutube services: "
+	KILLPID=`pidof youtubeplayer.sh`
+	if [ -n "$KILLPID" ]; then
+		kill $KILLPID
+	fi
 	RETVAL=$?
+	KILLPID=`pidof ytnavigator`
+	if [ -n "$KILLPID" ]; then
+		kill -9 $KILLPID
+	fi
+	KILLPID=`pidof ffplay`
+	if [ -n "$KILLPID" ]; then
+		kill $KILLPID
+	fi
 	echo "done"
 
 	return $RETVAL
