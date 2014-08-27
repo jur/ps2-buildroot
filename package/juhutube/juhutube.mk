@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-JUHUTUBE_VERSION = 518a8c2fc8df46b65b418eeccf33f41597398249
+JUHUTUBE_VERSION = 1b83c6a8263ee44bc0c5ca399f0bda03f88c0980
 JUHUTUBE_SITE = git://github.com/jur/juhutube
 JUHUTUBE_LICENSE = BSD-3c
 JUHUTUBE_LICENSE_FILES = LICENSE
