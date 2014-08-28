@@ -1,6 +1,6 @@
 --- ffmpeg-1.2.7/ffplay.c	2014-08-27 01:04:08.516418123 +0200
 +++ ffmpeg-1.2.7/ffplay.c	2014-08-27 01:15:48.980406156 +0200
-@@ -2984,6 +2984,33 @@ static void event_loop(VideoState *cur_s
+@@ -2984,6 +2984,36 @@ static void event_loop(VideoState *cur_s
          double x;
          refresh_loop_wait_event(cur_stream, &event);
          switch (event.type) {
@@ -27,6 +27,9 @@
 +                    break;
 +                case 0: /* Square */
 +                    stream_cycle_channel(cur_stream, AVMEDIA_TYPE_SUBTITLE);
++                    break;
++                case 7: /* R2 */
++                    toggle_full_screen(cur_stream);
 +                    break;
 +		}
 +            break;
