@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+# Start the installer
+#
+
+case "$1" in
+  start)
+ 	echo "Starting installer..."
+	juhutube-installer.sh &
+	;;
+  stop)
+	echo -n "Stopping installer..."
+	killall juhutube-installer.sh
+	;;
+  *)
+	echo "Usage: $0 {start|stop}"
+	exit 1
+esac
+
+exit $?
+

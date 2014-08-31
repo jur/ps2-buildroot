@@ -35,6 +35,7 @@ menu "Audio and video applications"
 	source "package/yavta/Config.in"
 	source "package/youtube-dl/Config.in"
 	source "package/juhutube/Config.in"
+	source "package/juhutube-installer/Config.in"
 endmenu
 
 menu "Compressors and decompressors"

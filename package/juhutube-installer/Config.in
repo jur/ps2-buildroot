@@ -1,0 +1,16 @@
+config BR2_PACKAGE_JUHUTUBE_INSTALLER
+	bool "juhutube-installer"
+	depends on BR2_PACKAGE_WGET || BR2_PACKAGE_BUSYBOX
+	depends on BR2_TOOLCHAIN_BUILDROOT_INET_IPV6
+	depends on BR2_INET_IPV6
+	depends on BR2_PACKAGE_DOSFSTOOLS
+	depends on BR2_PACKAGE_DOSFSTOOLS_MKFS_FAT
+	depends on BR2_PACKAGE_E2FSPROGS
+	depends on BR2_PACKAGE_E2FSPROGS_MKE2FS
+	depends on BR2_PACKAGE_E2FSPROGS_RESIZE2FS
+	depends on BR2_PACKAGE_PARTED
+	depends on BR2_INIT_BUSYBOX
+	help
+	  Installer for youtube player for embedded systems.
+
+	  https://github.com/jur/juhutube
