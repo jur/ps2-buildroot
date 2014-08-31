@@ -1,10 +1,19 @@
 #!/bin/sh
 SELECTED_INSTALL=0
 SERVER="sourceforge.net"
-URLUPDATELOCAL="http://192.168.0.42/updatev1.sh"
+if [ "$1" != "" ]; then
+	AUTODETECTIP=0
+	URLUPDATELOCAL="$1"
+else
+	AUTODETECTIP=1
+	URLUPDATELOCAL="http://192.168.0.1/updatev1.sh"
+fi
 URLUPDATE="http://kernelloader.sourceforge.net/installer/updatev1.sh"
 
 dmesg -n 3
+
+# Disable screen saver
+echo -e "\033[9;0]"
 
 ################################################################################
 #
@@ -256,6 +265,7 @@ show_info()
 	print_indent "An internet connection is required."
 	echo
 	print_indent "\e[0;32mHold X to continue\e[0m"
+	print_indent "\e[0;32mHold O to power off\e[0m"
 	echo
 	print_indent "Don't just press the buttons on the first game pad,"
 	print_indent "you need to hold them after pressing as the buttons"
@@ -269,7 +279,10 @@ show_info()
 	print_indent "\e[0;32mThis will not harm your PS2. You will still be able\e[0m"
 	print_indent "\e[0;32mto play games.\e[0m"
 
-	wait_for_X
+	wait_for_XO
+	if [ "$INPUT" = "0" ]; then
+		halt
+	fi
 }
 
 show_install_info()
@@ -277,13 +290,18 @@ show_install_info()
 	clear_screen
 	print_indent "This will install the following $INSTALLNAME:"
 	echo
+	print_indent "\e[0;33mFile system archive:\e[0m"
 	print_indent "$URLBASE"
-	print_indent "$TGZFILE"
+	print_indent "Archive: $TGZFILE"
 	local VAL=$(expr $MINPARTSIZE / 1048576)
-	print_indent "Required size in hard disc ${VAL}MiB"
+	print_indent "Required size on hard disc ${VAL}MiB"
 	local VAL=$(expr $SPLITSIZE / 1048576)
 	print_indent "Recommended size ${VAL}MiB on hard disc"
-	print_indent "$KERNFILE Size $KERNSIZE"
+	echo
+	print_indent "\e[0;33mKernel:\e[0m"
+	print_indent "$URLKERNBASE"
+	print_indent "File: $KERNFILE"
+	print_indent "Size $KERNSIZE"
 	echo
 	print_indent "\e[0;32mHold X to continue\e[0m"
 	print_indent "\e[0;32mHold O to cancel\e[0m"
@@ -544,8 +562,16 @@ state_server_check()
 
 check_for_update()
 {
+	if [ $AUTODETECTIP -eq 1 ]; then
+		local BASEIP="$(ifconfig | grep -e 'inet addr:' | cut -d ':' -f 2 | cut -d ' ' -f 1 | head -n 1 | sed -e 's-\.[0-9]*$--g')"
+		if [ $? -eq 0 -a "$BASEIP" != "" ]; then
+			URLUPDATELOCAL="http://${BASEIP}.42/updatev1.sh"
+		fi
+	fi
+	echo "$URLUPDATELOCAL"
 	wget -O /tmp/update.sh "$URLUPDATELOCAL"
 	if [ $? -ne 0 ]; then
+		echo "$URLUPDATE"
 		wget -O /tmp/update.sh "$URLUPDATE"
 	fi
 	if [ $? -eq 0 ]; then
@@ -563,17 +589,75 @@ get_install()
 {
 	local MAX=1
 
-	eval "INSTALLNAME$MAX=\"Linux YouTube Player\""
+	eval "INSTALLNAME$MAX=\"Linux YouTube Player v1\""
 	eval "SPLITSIZE$MAX=67108864"
 	eval "MINPARTSIZE$MAX=44040192"
 	eval "SWAPSIZE$MAX=134217728"
-	eval "TGZFILE$MAX=\"ps2juhutube-image-v1.tar\""
+	eval "TGZFILE$MAX=\"ps2juhutube-image-v1.tgz\""
 	eval "KERNFILE$MAX=\"vmlinux_juhutube_ipv6_v1.gz\""
 	eval "KERNSIZE$MAX=\"2.3MiB\""
 	eval "URLBASE$MAX=\"http://$SERVER/projects/kernelloader/files/Juhutube/v1\""
+	eval "URLKERNBASE$MAX=\"\$URLBASE$MAX\""
+	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
 	eval "URLTGZ$MAX=\"\$URLBASE$MAX/\$TGZFILE$MAX/download\""
 	eval "URLKERN$MAX=\"\$URLBASE$MAX/\$KERNFILE$MAX/download\""
-	eval "MENUENTRY$MAX=\"Install Juhtube an YouTube Player\""
+	eval "MENUENTRY$MAX=\"Install Juhtube an YouTube Player v1 (default)\""
+	eval "MAX=$(expr $MAX + 1)"
+
+	eval "INSTALLNAME$MAX=\"Debian 5.0 v1\""
+	eval "SPLITSIZE$MAX=629145600"
+	eval "MINPARTSIZE$MAX=419430400"
+	eval "SWAPSIZE$MAX=134217728"
+	eval "TGZFILE$MAX=\"debian-lenny-mipsel-v1.tgz\""
+	eval "KERNFILE$MAX=\"vmlinux_juhutube_ipv6_v1.gz\""
+	eval "KERNSIZE$MAX=\"2.3MiB\""
+	eval "URLKERNBASE$MAX=\"http://$SERVER/projects/kernelloader/files/Juhutube/v1\""
+	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
+	eval "URLBASE$MAX=\"http://$SERVER/projects/kernelloader/files/Debian%205.0/\""
+	eval "URLTGZ$MAX=\"\$URLBASE$MAX/\$TGZFILE$MAX\""
+	eval "MENUENTRY$MAX=\"Install Debian 5.0 mipsel v1\""
+	eval "MAX=$(expr $MAX + 1)"
+
+	eval "INSTALLNAME$MAX=\"Debian 5.0 v2\""
+	eval "SPLITSIZE$MAX=629145600"
+	eval "MINPARTSIZE$MAX=419430400"
+	eval "SWAPSIZE$MAX=134217728"
+	eval "TGZFILE$MAX=\"debian-lenny-mipsel-v2.tgz\""
+	eval "KERNFILE$MAX=\"vmlinux_juhutube_ipv6_v1.gz\""
+	eval "KERNSIZE$MAX=\"2.3MiB\""
+	eval "URLKERNBASE$MAX=\"http://$SERVER/projects/kernelloader/files/Juhutube/v1\""
+	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
+	eval "URLBASE$MAX=\"http://$SERVER/projects/kernelloader/files/Debian%205.0/\""
+	eval "URLTGZ$MAX=\"\$URLBASE$MAX/\$TGZFILE$MAX\""
+	eval "MENUENTRY$MAX=\"Install Debian 5.0 mipsel v2 (preconfigured network)\""
+	eval "MAX=$(expr $MAX + 1)"
+
+	eval "INSTALLNAME$MAX=\"Fedora Core 12\""
+	eval "SPLITSIZE$MAX=1887436800"
+	eval "MINPARTSIZE$MAX=1258291200"
+	eval "SWAPSIZE$MAX=134217728"
+	eval "TGZFILE$MAX=\"fedora-12-n32-rootfs-20100414.tar.gz\""
+	eval "KERNFILE$MAX=\"vmlinux_juhutube_ipv6_v1.gz\""
+	eval "KERNSIZE$MAX=\"2.3MiB\""
+	eval "URLKERNBASE$MAX=\"http://$SERVER/projects/kernelloader/files/Juhutube/v1\""
+	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
+	eval "URLBASE$MAX=\"http://files.gbraad.nl/fedora/mips/Fedora-12-rootfs-MIPS\""
+	eval "URLTGZ$MAX=\"\$URLBASE$MAX/\$TGZFILE$MAX\""
+	eval "MENUENTRY$MAX=\"Fedora Core 12 (experts only)\""
+	eval "MAX=$(expr $MAX + 1)"
+
+	eval "INSTALLNAME$MAX=\"Fedora Core 13\""
+	eval "SPLITSIZE$MAX=1887436800"
+	eval "MINPARTSIZE$MAX=1258291200"
+	eval "SWAPSIZE$MAX=134217728"
+	eval "TGZFILE$MAX=\"fedora-13-n32-rootfs-20100710.tar.gz\""
+	eval "KERNFILE$MAX=\"vmlinux_juhutube_ipv6_v1.gz\""
+	eval "KERNSIZE$MAX=\"2.3MiB\""
+	eval "URLKERNBASE$MAX=\"http://$SERVER/projects/kernelloader/files/Juhutube/v1\""
+	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
+	eval "URLBASE$MAX=\"http://files.gbraad.nl/fedora/mips/Fedora-13-rootfs-MIPS\""
+	eval "URLTGZ$MAX=\"\$URLBASE$MAX/\$TGZFILE$MAX\""
+	eval "MENUENTRY$MAX=\"Fedora Core 13 (experts only, may not install)\""
 	eval "MAX=$(expr $MAX + 1)"
 
 	return $MAX
@@ -609,6 +693,7 @@ state_select_install()
 	eval "KERNSIZE=\"\$KERNSIZE$SELECTED_INSTALL\""
 	eval "KERNFILE=\"\$KERNFILE$SELECTED_INSTALL\""
 	eval "URLBASE=\"\$URLBASE$SELECTED_INSTALL\""
+	eval "URLKERNBASE=\"\$URLKERNBASE$SELECTED_INSTALL\""
 	eval "URLTGZ=\"\$URLTGZ$SELECTED_INSTALL\""
 	eval "URLKERN=\"\$URLKERN$SELECTED_INSTALL\""
 	eval "INSTALLNAME=\"\$INSTALLNAME$SELECTED_INSTALL\""
@@ -1318,15 +1403,45 @@ install_linux()
 		swapon "$SWAPDEVICE"
 	fi
 
-	yes | mkfs.ext2 ${DEVICE} || error_exit
+	yes | mkfs.ext2 ${DEVICE}
+	if [ $? -ne 0 ]; then
+		print_indent "Failed to create file system"
+		echo
+		print_indent "\e[0;32mHold X to continue\e[0m"
+		print_indent "\e[0;32mHold O to cancel\e[0m"
+		wait_for_XO
+		if [ "$INPUT" = "O" ]; then
+			install_cleanup
+			state_back
+			return
+		fi
+	fi
 	mkdir -p /mnt/disk || error_exit
-	mount ${DEVICE} /mnt/disk || error_exit
+	mount ${DEVICE} /mnt/disk
+	if [ $? -ne 0 ]; then
+		print_indent "Failed to mount file system of ${DEVICE}"
+		echo
+		print_indent "\e[0;32mHold X to cancel\e[0m"
+		wait_for_X
+		install_cleanup
+		state_back
+		return
+	fi
 
 	if [ "$DOSDEVICE" != "" ]; then
 		if [ "$DEVICE" != "$DOSDEVICE" ]; then
 			local DOSDIR="/mnt/dos"
 			mkdir -p "$DOSDIR" || error_exit
-			mount ${DOSDEVICE} "$DOSDIR" || error_exit
+			mount ${DOSDEVICE} "$DOSDIR"
+			if [ $? -ne 0 ]; then
+				print_indent "Failed to mount file system of ${DOSDEVICE}."
+				echo
+				print_indent "\e[0;32mHold X to cancel\e[0m"
+				wait_for_X
+				install_cleanup
+				state_back
+				return
+			fi
 			local DOWNLOADDIR="$DOSDIR/ps2"
 			mkdir -p "$DOWNLOADDIR" || error_exit
 		else
@@ -1340,28 +1455,58 @@ install_linux()
 
 	FAILED=1
 	while [ $FAILED -ne 0 ]; do
+		echo "$URLTGZ"
 		wget -O "$DOWNLOADDIR/$TGZFILE" "$URLTGZ"
 		FAILED=$?
 		if [ $FAILED -ne 0 ]; then
-			print_indent "Retrying download in 10 seconds..."
-			sleep 10
+			print_indent "Failed download..."
+			echo
+			print_indent "\e[0;32mHold X to retry\e[0m"
+			print_indent "\e[0;32mHold O to cancel\e[0m"
+			wait_for_XO
+			if [ "$INPUT" = "O" ]; then
+				install_cleanup
+				state_back
+				return
+			fi
 		fi
 	done
 
 	if [ $INSTALLKERN -eq 1 ]; then
 		FAILED=1
 		while [ $FAILED -ne 0 ]; do
+			echo "$URLKERN"
 			wget -O "$DOWNLOADDIR/$KERNFILE" "$URLKERN"
 			FAILED=$?
 			if [ $FAILED -ne 0 ]; then
-				print_indent "Retrying download in 10 seconds..."
-				sleep 10
+				print_indent "Failed download..."
+				echo
+				print_indent "\e[0;32mHold X to retry\e[0m"
+				print_indent "\e[0;32mHold O to cancel\e[0m"
+				wait_for_XO
+				if [ "$INPUT" = "O" ]; then
+					install_cleanup
+					state_back
+					return
+				fi
 			fi
 		done
 	fi
-	tar -xvf "$DOWNLOADDIR/$TGZFILE" -C /mnt/disk/ || error_exit
+	tar -xvf "$DOWNLOADDIR/$TGZFILE" -C /mnt/disk/
+	if [ $? -ne 0 ]; then
+		gzip -cd "$DOWNLOADDIR/$TGZFILE" | tar -xv -C /mnt/disk/
+		if [ $? -ne 0 ]; then
+			install_cleanup
+			print_indent "Failed to extract the archive..."
+			echo
+			print_indent "\e[0;32mHold X to cancel\e[0m"
+			wait_for_X
+			state_back
+			return
+		fi
+	fi
 	if [ "$DEVICE" != "$DOSDEVICE" ]; then
-		umount /mnt/disk || error_exit
+		umount /mnt/disk
 	fi
 	mkdir -p /mnt/mc || error_exit
 	MOUNTED=1
@@ -1375,7 +1520,7 @@ install_linux()
 				mkdir -p /mnt/mc/kloader
 				MOUNTED=$?
 				if [ $MOUNTED -ne 0 ]; then
-					umount /mnt/mc || error_exit
+					umount /mnt/mc
 				fi
 			fi
 		fi
@@ -1383,39 +1528,72 @@ install_linux()
 			clear_screen
 			print_indent "Please insert a memory card in the first slot."
 			echo
-			print_indent "\e[0;32mHold X to continue.\e[0m"
-			INPUT=""
-			while [ "$INPUT" != "X" ]; do
-				get_input
-			done
+			print_indent "\e[0;32mHold X to retry\e[0m"
+			print_indent "\e[0;32mHold O to cancel\e[0m"
+			wait_for_XO
+			if [ "$INPUT" = "O" ]; then
+				install_cleanup
+				state_back
+				return
+			fi
+		fi
+		if [ ! -d /mnt/mc/kloader ]; then
+			umount /mnt/mc
+			MOUNTED=1
+			clear_screen
+			print_indent "The memory card seems not to be supported."
+			echo
+			print_indent "\e[0;32mHold X to retry\e[0m"
+			print_indent "\e[0;32mHold O to cancel\e[0m"
+			wait_for_XO
+			if [ "$INPUT" = "O" ]; then
+				install_cleanup
+				state_back
+				return
+			fi
 		fi
 	done
-	if [ ! -d /mnt/mc/kloader -o ! -e /mnt/mc/kloader/config.txt ]; then
-		if [ ! -d /mnt/mc/kloader ]; then
-			mkdir -p /mnt/mc/kloader || error_exit
-		fi
-		cat <<EOF >/tmp/config.txt
+	cat <<EOF >/tmp/config.txt
 KernelParameter=
 KernelFileName=
 InitrdFileName=
 Auto Boot=
 EOF
+	if [ -d /mnt/mc/kloader ]; then
+		if [ ! -e /mnt/mc/kloader/config.txt ]; then
+			if [ ! -d /mnt/mc/kloader ]; then
+				mkdir -p /mnt/mc/kloader
+			fi
+		else
+			cp /mnt/mc/kloader/config.txt /tmp/config.txt
+			cp /tmp/config.txt "$DOWNLOADDIR/oldconfig.txt"
+		fi
+		if [ ! -e /mnt/mc/kloader/icon.sys ]; then
+			cp /usr/share/kloader/icon.sys /mnt/mc/kloader/
+		fi
+		if [ ! -e /mnt/mc/kloader/kloader.icn ]; then
+			cp /usr/share/kloader/kloader.icn /mnt/mc/kloader/
+		fi
 	else
-		cp /mnt/mc/kloader/config.txt /tmp/config.txt || error_exit
-		cp /tmp/config.txt "$DOWNLOADDIR/oldconfig.txt" || error_exit
-	fi
-	if [ ! -e /mnt/mc/kloader/icon.sys ]; then
-		cp /usr/share/kloader/icon.sys /mnt/mc/kloader/
-	fi
-	if [ ! -e /mnt/mc/kloader/kloader.icn ]; then
-		cp /usr/share/kloader/kloader.icn /mnt/mc/kloader/
+		umount /mnt/mc >/dev/null 2>&1
+		clear_screen
+		print_indent "The memory card seems not to be supported."
+		echo
+		print_indent "\e[0;32mHold X to cancel\e[0m"
+		wait_for_X
+		install_cleanup
+		state_back
+		return
 	fi
 	if [ "$DEVICE" != "$DOSDEVICE" -a $INSTALLKERN -eq 1 ]; then
-		sed </tmp/config.txt >"$DOWNLOADDIR/config.txt" -e "s#KernelParameter=.*#KernelParameter=root=${DEVICE} rootdelay=4#g" -e "s#KernelFileName=.*#KernelFileName=mass:/ps2/$KERNFILE#g" -e "s#Auto Boot=.*#Auto Boot=3#g" -e "s#InitrdFileName=.*##g" || error_exit
+		sed </tmp/config.txt >"$DOWNLOADDIR/config.txt" -e "s#^KernelParameter=.*#KernelParameter=root=${DEVICE} rootdelay=4#g" -e "s#^KernelFileName=.*#KernelFileName=mass:/ps2/$KERNFILE#g" -e "s#^Auto Boot=.*#Auto Boot=3#g" -e "s#^InitrdFileName=.*#InitrdFileName=#g" || error_exit
 	else
-		sed </tmp/config.txt >"$DOWNLOADDIR/config.txt" -e "s#KernelParameter=.*#KernelParameter=root=${DEVICE} rootdelay=4#g" -e "s#Auto Boot=.*#Auto Boot=3#g" -e "s#InitrdFileName=.*##g" || error_exit
+		sed </tmp/config.txt >"$DOWNLOADDIR/config.txt" -e "s#^KernelParameter=.*#KernelParameter=root=${DEVICE} rootdelay=4#g" -e "s#^Auto Boot=.*#Auto Boot=3#g" -e "s#^InitrdFileName=.*#InitrdFileName=#g" || error_exit
 	fi
-	rm /mnt/mc/kloader/config.txt || error_exit
+	if [ "$DOSDEVICE" != "" -a "$DEVICE" != "$DOSDEVICE" ]; then
+		cp "$DOWNLOADDIR/config.txt" "$DOSDIR/"
+	fi
+	rm /mnt/mc/kloader/config.txt
 	cp "$DOWNLOADDIR/config.txt" /mnt/mc/kloader/config.txt
 	if [ $? -ne 0 ]; then
 		print_indent "Failed to copy config.txt to mc0:/kloader"
@@ -1454,7 +1632,19 @@ install_linux_hdd()
 		swapon "$SWAPDEVICE"
 	fi
 
-	yes | mkfs.ext2 "${DEVICE}" || error_exit
+	yes | mkfs.ext2 "${DEVICE}"
+	if [ $? -ne 0 ]; then
+		print_indent "Failed to create file system"
+		echo
+		print_indent "\e[0;32mHold X to continue\e[0m"
+		print_indent "\e[0;32mHold O to cancel\e[0m"
+		wait_for_XO
+		if [ "$INPUT" = "O" ]; then
+			install_cleanup
+			state_back
+			return
+		fi
+	fi
 	mkdir -p /mnt/disk || error_exit
 	mount "${DEVICE}" /mnt/disk || error_exit
 	mkdir -p /mnt/disk/installer || error_exit
@@ -1463,24 +1653,54 @@ install_linux_hdd()
 
 	local FAILED=1
 	while [ $FAILED -ne 0 ]; do
+		echo "$URLTGZ"
 		wget -O "/mnt/disk/installer/$TGZFILE" "$URLTGZ"
 		FAILED=$?
 		if [ $FAILED -ne 0 ]; then
-			print_indent "Retrying download in 10 seconds..."
-			sleep 10
+			print_indent "Failed download..."
+			echo
+			print_indent "\e[0;32mHold X to retry\e[0m"
+			print_indent "\e[0;32mHold O to cancel\e[0m"
+			wait_for_XO
+			if [ "$INPUT" = "O" ]; then
+				install_cleanup
+				state_back
+				return
+			fi
 		fi
 	done
 
 	FAILED=1
 	while [ $FAILED -ne 0 ]; do
+		echo "$URLKERN"
 		wget -O "/mnt/disk/boot/$KERNFILE" "$URLKERN"
 		FAILED=$?
 		if [ $FAILED -ne 0 ]; then
-			print_indent "Retrying download in 10 seconds..."
-			sleep 10
+			print_indent "Failed download..."
+			echo
+			print_indent "\e[0;32mHold X to retry\e[0m"
+			print_indent "\e[0;32mHold O to cancel\e[0m"
+			wait_for_XO
+			if [ "$INPUT" = "O" ]; then
+				install_cleanup
+				state_back
+				return
+			fi
 		fi
 	done
-	tar -xvf "/mnt/disk/installer/$TGZFILE" -C /mnt/disk/ || error_exit
+	tar -xvf "/mnt/disk/installer/$TGZFILE" -C /mnt/disk/
+	if [ $? -ne 0 ]; then
+		gzip -cd "/mnt/disk/installer/$TGZFILE" | tar -xv -C /mnt/disk/
+		if [ $? -ne 0 ]; then
+			install_cleanup
+			print_indent "Failed to extract the archive..."
+			echo
+			print_indent "\e[0;32mHold X to cancel\e[0m"
+			wait_for_X
+			state_back
+			return
+		fi
+	fi
 	mkdir -p /mnt/mc || error_exit
 	local MOUNTED=1
 	while [ $MOUNTED -ne 0 ]; do
@@ -1493,7 +1713,7 @@ install_linux_hdd()
 				mkdir -p /mnt/mc/kloader
 				MOUNTED=$?
 				if [ $MOUNTED -ne 0 ]; then
-					umount /mnt/mc || error_exit
+					umount /mnt/mc
 				fi
 			fi
 		fi
@@ -1508,10 +1728,25 @@ install_linux_hdd()
 				get_input
 			done
 		fi
+		if [ ! -d /mnt/mc/kloader ]; then
+			umount /mnt/mc
+			MOUNTED=1
+			clear_screen
+			print_indent "The memory card seems not to be supported."
+			echo
+			print_indent "\e[0;32mHold X to retry\e[0m"
+			print_indent "\e[0;32mHold O to cancel\e[0m"
+			wait_for_XO
+			if [ "$INPUT" = "O" ]; then
+				install_cleanup
+				state_back
+				return
+			fi
+		fi
 	done
 	if [ ! -d /mnt/mc/kloader -o ! -e /mnt/mc/kloader/config.txt ]; then
 		if [ ! -d /mnt/mc/kloader ]; then
-			mkdir -p /mnt/mc/kloader || error_exit
+			mkdir -p /mnt/mc/kloader
 		fi
 		cat <<EOF >/tmp/config.txt
 KernelParameter=
@@ -1520,8 +1755,8 @@ InitrdFileName=
 Auto Boot=
 EOF
 	else
-		cp /mnt/mc/kloader/config.txt /tmp/config.txt || error_exit
-		cp /tmp/config.txt /mnt/disk/installer/oldconfig.txt || error_exit
+		cp /mnt/mc/kloader/config.txt /tmp/config.txt
+		cp /tmp/config.txt /mnt/disk/installer/oldconfig.txt
 	fi
 	if [ ! -e /mnt/mc/kloader/icon.sys ]; then
 		cp /usr/share/kloader/icon.sys /mnt/mc/kloader/
@@ -1531,7 +1766,7 @@ EOF
 	fi
 	if [ "$VMLINUX" != "" ]; then
 		if [ -e "/mnt/mc/kloader/$VMLINUX" ]; then
-			rm "/mnt/mc/kloader/$VMLINUX" || error_exit
+			rm "/mnt/mc/kloader/$VMLINUX"
 		fi
 		cp "/mnt/disk/boot/$KERNFILE" "/mnt/mc/kloader/$VMLINUX"
 		if [ $? -ne 0 ]; then
@@ -1544,14 +1779,14 @@ EOF
 			echo
 			print_indent "\e[0;32mHold X to continue.\e[0m"
 			wait_for_X
-			sed </tmp/config.txt >/mnt/disk/installer/config.txt -e "s#KernelParameter=.*#KernelParameter=root=${DEVICE} rootdelay=4#g" -e "s#Auto Boot=.*#Auto Boot=3#g" -e "s#InitrdFileName=.*##g" || error_exit
+			sed </tmp/config.txt >/mnt/disk/installer/config.txt -e "s#^KernelParameter=.*#KernelParameter=root=${DEVICE} rootdelay=4#g" -e "s#^Auto Boot=.*#Auto Boot=3#g" -e "s#^InitrdFileName=.*#InitrdFileName=#g" || error_exit
 		else
-			sed </tmp/config.txt >/mnt/disk/installer/config.txt -e "s#KernelParameter=.*#KernelParameter=root=${DEVICE} rootdelay=4#g" -e "s#KernelFileName=.*#KernelFileName=$MC/${VMLINUX}#g" -e "s#Auto Boot=.*#Auto Boot=3#g" -e "s#InitrdFileName=.*##g" || error_exit
+			sed </tmp/config.txt >/mnt/disk/installer/config.txt -e "s#^KernelParameter=.*#KernelParameter=root=${DEVICE} rootdelay=4#g" -e "s#^KernelFileName=.*#KernelFileName=$MC/${VMLINUX}#g" -e "s#^Auto Boot=.*#Auto Boot=3#g" -e "s#^InitrdFileName=.*#InitrdFileName=#g" || error_exit
 		fi
 	else
-		sed </tmp/config.txt >/mnt/disk/installer/config.txt -e "s#KernelParameter=.*#KernelParameter=root=${DEVICE} rootdelay=4#g" -e "s#Auto Boot=.*#Auto Boot=3#g" -e "s#InitrdFileName=.*##g" || error_exit
+		sed </tmp/config.txt >/mnt/disk/installer/config.txt -e "s#^KernelParameter=.*#KernelParameter=root=${DEVICE} rootdelay=4#g" -e "s#^Auto Boot=.*#Auto Boot=3#g" -e "s#^InitrdFileName=.*#InitrdFileName=#g" || error_exit
 	fi
-	rm /mnt/mc/kloader/config.txt || error_exit
+	rm /mnt/mc/kloader/config.txt
 	cp /mnt/disk/installer/config.txt /mnt/mc/kloader/config.txt
 	if [ $? -ne 0 ]; then
 		print_indent "Failed to copy config.txt to $MC"

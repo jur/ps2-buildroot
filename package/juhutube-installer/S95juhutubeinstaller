@@ -12,6 +12,10 @@ case "$1" in
 	echo -n "Stopping installer..."
 	killall juhutube-installer.sh
 	;;
+  restart|reload)
+	"$0" stop
+	"$0" start
+	;;
   *)
 	echo "Usage: $0 {start|stop}"
 	exit 1
