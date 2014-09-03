@@ -128,7 +128,7 @@ print_menu()
 		else
 			echo -n "   "
 		fi
-		echo -n "$i) $MENUENTRY"
+		echo -ne "$i) $MENUENTRY"
 		echo -e "\e[0m"
 		i=$(expr $i + 1)
 	done
@@ -280,7 +280,7 @@ show_info()
 	print_indent "\e[0;32mto play games.\e[0m"
 
 	wait_for_XO
-	if [ "$INPUT" = "0" ]; then
+	if [ "$INPUT" = "O" ]; then
 		halt
 	fi
 }
@@ -601,7 +601,7 @@ get_install()
 	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
 	eval "URLTGZ$MAX=\"\$URLBASE$MAX/\$TGZFILE$MAX/download\""
 	eval "URLKERN$MAX=\"\$URLBASE$MAX/\$KERNFILE$MAX/download\""
-	eval "MENUENTRY$MAX=\"Install Juhtube an YouTube Player v1 (default)\""
+	eval "MENUENTRY$MAX=\"Install Juhutube an YouTube Player v1 (default)\""
 	eval "MAX=$(expr $MAX + 1)"
 
 	eval "INSTALLNAME$MAX=\"Debian 5.0 v1\""
@@ -755,7 +755,6 @@ state_select_kernel_disk()
 	check_disk 0
 	local MAX=$?
 
-	local NOINSTALL="$MAX"
 	local i=1
 
 	# Prefer to install kernel to same disk:
@@ -769,6 +768,7 @@ state_select_kernel_disk()
 	done
 	KERNDISK=""
 
+	local NOINSTALL="$MAX"
 	eval "MENUENTRY$MAX=\"Don't install kernel\""
 	MAX=$(expr $MAX + 1)
 
@@ -790,6 +790,7 @@ state_select_kernel_disk()
 			KERNDISKFORMAT=""
 			KERNDISKLABEL=""
 			DESTKERN="mc0:kloader"
+			state_set select_install_partition
 		else
 			eval "KERNDISK=\"\$DISK$SELECTED_DISK\""
 			eval "KERNDISKSIZE=\"\$DISKSIZE$SELECTED_DISK\""
@@ -1009,7 +1010,7 @@ state_select_install_partition()
 	fi
 	local SURE=n
 	while [ "$SURE" != "y" ]; do
-		MENUENTRY0="Delete all data on $DISK $SIZE $LABEL and create new partition"
+		MENUENTRY0="Delete all data on $DISK $SIZE $LABEL\n         and create new partition"
 		select_menu "Please select a partition for installation:" 0 $REALMAX $SELECTED_PART
 		SELECTED_PART=$?
 		if [ $SELECTED_PART -gt $REALMAX ]; then
@@ -1163,7 +1164,7 @@ state_select_kern_partition()
 
 	local SURE=n
 	while [ "$SURE" != "y" ]; do
-		MENUENTRY0="Delete all data on $DISK $SIZE $LABEL and create new partition"
+		MENUENTRY0="Delete all data on $DISK $SIZE $LABEL\n         and create new partition"
 		select_menu "Please select a partition for kernel:" 0 $MAX $SELECTED_PART
 		SELECTED_PART=$?
 		if [ $SELECTED_PART -gt $MAX ]; then
@@ -1324,17 +1325,20 @@ format_everything()
 	if [ $FIRSTSECTOR -lt 2048 ]; then
 		FIRSTSECTOR=2048
 	fi
-	START=$(expr $FIRSTSECTOR \* BLOCKSIZE)
-	set -x
-	parted -s -m $DISK mklabel msdos || error_exit
+	START=$(expr $FIRSTSECTOR \* $BLOCKSIZE)
 	local BORDER=$(expr $SPLITSIZE + $START)
 	BORDER=$(expr $BORDER + $BLOCKSIZE - 1)
 	BORDER=$(expr $BORDER / $BLOCKSIZE)
 	BORDER=$(expr $BORDER \* $BLOCKSIZE)
 	BORDER=$(expr $BORDER - 1)
+
+	set -x
+	parted -s -m $DISK mklabel msdos || error_exit
 	parted -s -m $DISK mkpart primary ext2 ${FIRSTSECTOR}s ${BORDER}B || error_exit
+	set +x
 	BORDER=$(expr $BORDER + 1)
 	local END=$(expr $BORDER + $SWAPSIZE - 1)
+	set -x
 	parted -s -m $DISK mkpartfs primary linux-swap ${BORDER}B ${END}B || error_exit
 	END=$(expr $END + 1)
 	parted -s -m $DISK mkpart primary fat32 ${END}B 100% || error_exit
@@ -1604,8 +1608,8 @@ EOF
 		echo
 		sleep 3
 	fi
-	umount /mnt/mc || error_exit
-	umount "$DOSDIR" || error_exit
+	umount /mnt/mc
+	umount "$DOSDIR"
 	if [ "$SWAPDEVICE" != "" ]; then
 		swapoff "$SWAPDEVICE"
 	fi
@@ -1794,8 +1798,8 @@ EOF
 		print_indent "\e[0;32mHold X to continue.\e[0m"
 		wait_for_X
 	fi
-	umount /mnt/mc || error_exit
-	umount /mnt/disk || error_exit
+	umount /mnt/mc
+	umount /mnt/disk
 	if [ "$SWAPDEVICE" != "" ]; then
 		swapoff "$SWAPDEVICE"
 	fi
