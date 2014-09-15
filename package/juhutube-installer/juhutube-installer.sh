@@ -218,6 +218,7 @@ error_exit()
 		get_input
 	done
 	halt
+	exit 1
 }
 
 ################################################################################
@@ -282,6 +283,7 @@ show_info()
 	wait_for_XO
 	if [ "$INPUT" = "O" ]; then
 		halt
+		exit 1
 	fi
 }
 
@@ -1286,6 +1288,7 @@ state_finished()
 	wait_for_XO
 	if [ "$INPUT" = "X" ]; then
 		halt
+		exit 1
 	else
 		state_reset
 	fi
