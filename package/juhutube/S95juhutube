@@ -4,7 +4,28 @@
 
 RETVAL=0
 
+sound_check() {
+	if [ -d /sys/firmware/iopmodules -a -d /sys/bus/platform/drivers/ps2audio ]; then
+		# Check if sound library was loaded.
+		grep Sound_Device_Library /sys/firmware/iopmodules/*/name 2>/dev/null
+		if [ $? -ne 0 ]; then
+			# Load sound library
+			echo "rom0:LIBSD" >/sys/firmware/iopmodules/load_module
+			if [ $? -eq 0 ]; then
+				# Load audio server
+				echo "audsrv.irx" >/sys/firmware/iopmodules/load_module
+				if [ $? -eq 0 ]; then
+					# Activate audio driver
+					echo "ps2audio.0" >/sys/bus/platform/drivers/ps2audio/bind
+				fi
+			fi
+		fi
+	fi
+}
+
 start() {
+	echo -n "Checking sound"
+	sound_check
 	echo -n "Starting Juhutube services: "
 	export HOME=/root
 	youtubeplayer.sh &
