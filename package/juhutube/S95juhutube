@@ -24,7 +24,7 @@ sound_check() {
 }
 
 start() {
-	echo -n "Checking sound"
+	echo "Checking sound"
 	sound_check
 	echo -n "Starting Juhutube services: "
 	export HOME=/root
