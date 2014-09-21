@@ -562,48 +562,25 @@ state_server_check()
 	esac
 }
 
-check_for_update()
-{
-	if [ $AUTODETECTIP -eq 1 ]; then
-		local BASEIP="$(ifconfig | grep -e 'inet addr:' | cut -d ':' -f 2 | cut -d ' ' -f 1 | head -n 1 | sed -e 's-\.[0-9]*$--g')"
-		if [ $? -eq 0 -a "$BASEIP" != "" ]; then
-			URLUPDATELOCAL="http://${BASEIP}.42/updatev1.sh"
-		fi
-	fi
-	echo "$URLUPDATELOCAL"
-	wget -O /tmp/update.sh "$URLUPDATELOCAL"
-	if [ $? -ne 0 ]; then
-		echo "$URLUPDATE"
-		wget -O /tmp/update.sh "$URLUPDATE"
-	fi
-	if [ $? -eq 0 ]; then
-		source /tmp/update.sh
-	else
-		print_indent "No update was found."
-		echo
-		print_indent "\e[0;32mHold X to continue\e[0m"
-
-		wait_for_X
-	fi
-}
-
 get_install()
 {
 	local MAX=1
 
-	eval "INSTALLNAME$MAX=\"Linux YouTube Player v1\""
-	eval "SPLITSIZE$MAX=67108864"
-	eval "MINPARTSIZE$MAX=44040192"
+	local JUHUTUBEBASE="http://$SERVER/projects/kernelloader/files/Juhutube/v2"
+
+	eval "INSTALLNAME$MAX=\"Linux YouTube Player v2\""
+	eval "SPLITSIZE$MAX=167772160"
+	eval "MINPARTSIZE$MAX=104857600"
 	eval "SWAPSIZE$MAX=134217728"
-	eval "TGZFILE$MAX=\"ps2juhutube-image-v1.tgz\""
-	eval "KERNFILE$MAX=\"vmlinux_juhutube_ipv6_v1.gz\""
-	eval "KERNSIZE$MAX=\"2.3MiB\""
-	eval "URLBASE$MAX=\"http://$SERVER/projects/kernelloader/files/Juhutube/v1\""
+	eval "TGZFILE$MAX=\"ps2juhutube-image-v2.tgz\""
+	eval "KERNFILE$MAX=\"vmlinux_juhutube_v2.gz\""
+	eval "KERNSIZE$MAX=\"2.4MiB\""
+	eval "URLBASE$MAX=\"$JUHUTUBEBASE\""
 	eval "URLKERNBASE$MAX=\"\$URLBASE$MAX\""
 	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
-	eval "URLTGZ$MAX=\"\$URLBASE$MAX/\$TGZFILE$MAX/download\""
-	eval "URLKERN$MAX=\"\$URLBASE$MAX/\$KERNFILE$MAX/download\""
-	eval "MENUENTRY$MAX=\"Install Juhutube an YouTube Player v1 (default)\""
+	eval "URLTGZ$MAX=\"\$URLBASE$MAX/\$TGZFILE$MAX\""
+	eval "URLKERN$MAX=\"\$URLBASE$MAX/\$KERNFILE$MAX\""
+	eval "MENUENTRY$MAX=\"Install Juhutube an YouTube Player v2 (default)\""
 	eval "MAX=$(expr $MAX + 1)"
 
 	eval "INSTALLNAME$MAX=\"Debian 5.0 v1\""
@@ -611,9 +588,9 @@ get_install()
 	eval "MINPARTSIZE$MAX=419430400"
 	eval "SWAPSIZE$MAX=134217728"
 	eval "TGZFILE$MAX=\"debian-lenny-mipsel-v1.tgz\""
-	eval "KERNFILE$MAX=\"vmlinux_juhutube_ipv6_v1.gz\""
-	eval "KERNSIZE$MAX=\"2.3MiB\""
-	eval "URLKERNBASE$MAX=\"http://$SERVER/projects/kernelloader/files/Juhutube/v1\""
+	eval "KERNFILE$MAX=\"vmlinux_juhutube_v2.gz\""
+	eval "KERNSIZE$MAX=\"2.4MiB\""
+	eval "URLKERNBASE$MAX=\"$JUHUTUBEBASE\""
 	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
 	eval "URLBASE$MAX=\"http://$SERVER/projects/kernelloader/files/Debian%205.0/\""
 	eval "URLTGZ$MAX=\"\$URLBASE$MAX/\$TGZFILE$MAX\""
@@ -625,9 +602,9 @@ get_install()
 	eval "MINPARTSIZE$MAX=419430400"
 	eval "SWAPSIZE$MAX=134217728"
 	eval "TGZFILE$MAX=\"debian-lenny-mipsel-v2.tgz\""
-	eval "KERNFILE$MAX=\"vmlinux_juhutube_ipv6_v1.gz\""
-	eval "KERNSIZE$MAX=\"2.3MiB\""
-	eval "URLKERNBASE$MAX=\"http://$SERVER/projects/kernelloader/files/Juhutube/v1\""
+	eval "KERNFILE$MAX=\"vmlinux_juhutube_v2.gz\""
+	eval "KERNSIZE$MAX=\"2.4MiB\""
+	eval "URLKERNBASE$MAX=\"$JUHUTUBEBASE\""
 	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
 	eval "URLBASE$MAX=\"http://$SERVER/projects/kernelloader/files/Debian%205.0/\""
 	eval "URLTGZ$MAX=\"\$URLBASE$MAX/\$TGZFILE$MAX\""
@@ -639,9 +616,9 @@ get_install()
 	eval "MINPARTSIZE$MAX=1258291200"
 	eval "SWAPSIZE$MAX=134217728"
 	eval "TGZFILE$MAX=\"fedora-12-n32-rootfs-20100414.tar.gz\""
-	eval "KERNFILE$MAX=\"vmlinux_juhutube_ipv6_v1.gz\""
-	eval "KERNSIZE$MAX=\"2.3MiB\""
-	eval "URLKERNBASE$MAX=\"http://$SERVER/projects/kernelloader/files/Juhutube/v1\""
+	eval "KERNFILE$MAX=\"vmlinux_juhutube_v2.gz\""
+	eval "KERNSIZE$MAX=\"2.4MiB\""
+	eval "URLKERNBASE$MAX=\"$JUHUTUBEBASE\""
 	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
 	eval "URLBASE$MAX=\"http://files.gbraad.nl/fedora/mips/Fedora-12-rootfs-MIPS\""
 	eval "URLTGZ$MAX=\"\$URLBASE$MAX/\$TGZFILE$MAX\""
@@ -653,9 +630,9 @@ get_install()
 	eval "MINPARTSIZE$MAX=1258291200"
 	eval "SWAPSIZE$MAX=134217728"
 	eval "TGZFILE$MAX=\"fedora-13-n32-rootfs-20100710.tar.gz\""
-	eval "KERNFILE$MAX=\"vmlinux_juhutube_ipv6_v1.gz\""
-	eval "KERNSIZE$MAX=\"2.3MiB\""
-	eval "URLKERNBASE$MAX=\"http://$SERVER/projects/kernelloader/files/Juhutube/v1\""
+	eval "KERNFILE$MAX=\"vmlinux_juhutube_v2.gz\""
+	eval "KERNSIZE$MAX=\"2.4MiB\""
+	eval "URLKERNBASE$MAX=\"$JUHUTUBEBASE\""
 	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
 	eval "URLBASE$MAX=\"http://files.gbraad.nl/fedora/mips/Fedora-13-rootfs-MIPS\""
 	eval "URLTGZ$MAX=\"\$URLBASE$MAX/\$TGZFILE$MAX\""
@@ -663,44 +640,6 @@ get_install()
 	eval "MAX=$(expr $MAX + 1)"
 
 	return $MAX
-}
-
-
-state_select_install()
-{
-	get_install
-	MAX=$?
-
-	MENUENTRY0="Update installer"
-	select_menu "Please select an installation:" 0 $MAX $SELECTED_INSTALL
-	SELECTED_INSTALL=$?
-
-	if [ $SELECTED_INSTALL -gt $MAX ]; then
-		state_back
-		state_back
-		return
-	fi
-	if [ $SELECTED_INSTALL -eq 0 ]; then
-		SELECTED_INSTALL=1
-		check_for_update
-		return
-	fi
-	# Where to split the FAT partition:
-	eval "SPLITSIZE=\"\$SPLITSIZE$SELECTED_INSTALL\""
-	# Minimum size for the new created partition:
-	eval "MINPARTSIZE=\"\$MINPARTSIZE$SELECTED_INSTALL\""
-	# Reserve memory for swap:
-	eval "SWAPSIZE=\"\$SWAPSIZE$SELECTED_INSTALL\""
-	eval "TGZFILE=\"\$TGZFILE$SELECTED_INSTALL\""
-	eval "KERNSIZE=\"\$KERNSIZE$SELECTED_INSTALL\""
-	eval "KERNFILE=\"\$KERNFILE$SELECTED_INSTALL\""
-	eval "URLBASE=\"\$URLBASE$SELECTED_INSTALL\""
-	eval "URLKERNBASE=\"\$URLKERNBASE$SELECTED_INSTALL\""
-	eval "URLTGZ=\"\$URLTGZ$SELECTED_INSTALL\""
-	eval "URLKERN=\"\$URLKERN$SELECTED_INSTALL\""
-	eval "INSTALLNAME=\"\$INSTALLNAME$SELECTED_INSTALL\""
-
-	state_set "show_install"
 }
 
 state_show_install()
@@ -1267,9 +1206,22 @@ state_install()
 		fi
 		if [ "${KERNDEV:0:5}" = "ps2mc" ]; then
 			if [ "$KERNDISK" != "" ]; then
-				install_linux_hdd "$DEVICE" "vmlinux.gz" "$KERNDEVICE" "$DESTKERN"
+				clear_screen
+				print_indent "Please select the bootloader:"
+				echo
+				print_indent "\e[0;32mHold X to install to kloader on MC.\e[0m"
+				print_indent "\e[0;32m (You need kloader to boot).\e[0m"
+				print_indent "\e[0;32mHold O to install to BWLINUX on MC.\e[0m"
+				print_indent "\e[0;32m (You need disc 1 from Sony's Linux Toolkit to boot).\e[0m"
+				echo
+				wait_for_XO
+				if [ "$INPUT" = "X" ]; then
+					install_linux_hdd "$DEVICE" "vmlinux.gz" "$KERNDEVICE" "$DESTKERN" "kloader"
+				else
+					install_linux_hdd "$DEVICE" "vmlinux" "$KERNDEVICE" "$DESTKERN" "BWLINUX"
+				fi
 			else
-				install_linux_hdd "$DEVICE" "" "$KERNDEVICE" "mc0:kloader"
+				install_linux_hdd "$DEVICE" "" "$KERNDEVICE" "mc0:kloader" "kloader"
 			fi
 		else
 			install_linux "$DEVICE" "$KERNDEVICE" "/dev/ps2mc00" $INSTALLKERN
@@ -1398,10 +1350,14 @@ install_linux()
 	local MCDEVICE="$3"
 	local INSTALLKERN="$4"
 
+	clear_screen
+	print_indent "Please select how to format the partition ${DEVICE}:"
+	echo
 	print_indent "\e[0;32mHold X to delete all data on ${DEVICE}.\e[0m"
+	print_indent "\e[0;32mHold TRIANGLE to try updating without formating.\e[0m"
 	print_indent "\e[0;32mHold O to cancel.\e[0m"
-	wait_for_XO
-	if [ "$INPUT" != "X" ]; then
+	wait_for_XOT
+	if [ "$INPUT" = "O" ]; then
 		state_back
 		return
 	fi
@@ -1410,19 +1366,22 @@ install_linux()
 		swapon "$SWAPDEVICE"
 	fi
 
-	yes | mkfs.ext2 ${DEVICE}
-	if [ $? -ne 0 ]; then
-		print_indent "Failed to create file system"
-		echo
-		print_indent "\e[0;32mHold X to continue\e[0m"
-		print_indent "\e[0;32mHold O to cancel\e[0m"
-		wait_for_XO
-		if [ "$INPUT" = "O" ]; then
-			install_cleanup
-			state_back
-			return
+	if [ "$INPUT" = "X" ]; then
+		yes | mkfs.ext2 ${DEVICE}
+		if [ $? -ne 0 ]; then
+			print_indent "Failed to create file system"
+			echo
+			print_indent "\e[0;32mHold X to continue\e[0m"
+			print_indent "\e[0;32mHold O to cancel\e[0m"
+			wait_for_XO
+			if [ "$INPUT" = "O" ]; then
+				install_cleanup
+				state_back
+				return
+			fi
 		fi
 	fi
+	fsck.ext2 -y ${DEVICE}
 	mkdir -p /mnt/disk || error_exit
 	mount ${DEVICE} /mnt/disk
 	if [ $? -ne 0 ]; then
@@ -1626,11 +1585,16 @@ install_linux_hdd()
 	local VMLINUX="$2"
 	local MCDEVICE="$3"
 	local MC="$4"
+	local MCDIR="$5"
 
+	clear_screen
+	print_indent "Please select how to format the partition ${DEVICE}:"
+	echo
 	print_indent "\e[0;32mHold X to delete all data on ${DEVICE}.\e[0m"
+	print_indent "\e[0;32mHold TRIANGLE to try updating without formating.\e[0m"
 	print_indent "\e[0;32mHold O to cancel.\e[0m"
-	wait_for_XO
-	if [ "$INPUT" != "X" ]; then
+	wait_for_XOT
+	if [ "$INPUT" = "O" ]; then
 		state_back
 		return
 	fi
@@ -1639,19 +1603,22 @@ install_linux_hdd()
 		swapon "$SWAPDEVICE"
 	fi
 
-	yes | mkfs.ext2 "${DEVICE}"
-	if [ $? -ne 0 ]; then
-		print_indent "Failed to create file system"
-		echo
-		print_indent "\e[0;32mHold X to continue\e[0m"
-		print_indent "\e[0;32mHold O to cancel\e[0m"
-		wait_for_XO
-		if [ "$INPUT" = "O" ]; then
-			install_cleanup
-			state_back
-			return
+	if [ "$INPUT" = "X" ]; then
+		yes | mkfs.ext2 "${DEVICE}"
+		if [ $? -ne 0 ]; then
+			print_indent "Failed to create file system"
+			echo
+			print_indent "\e[0;32mHold X to continue\e[0m"
+			print_indent "\e[0;32mHold O to cancel\e[0m"
+			wait_for_XO
+			if [ "$INPUT" = "O" ]; then
+				install_cleanup
+				state_back
+				return
+			fi
 		fi
 	fi
+	fsck.ext2 -y ${DEVICE}
 	mkdir -p /mnt/disk || error_exit
 	mount "${DEVICE}" /mnt/disk || error_exit
 	mkdir -p /mnt/disk/installer || error_exit
@@ -1716,8 +1683,8 @@ install_linux_hdd()
 		if [ $MOUNTED -eq 0 ]; then
 			# mount can return success when there is no memory card,
 			# then creating a directory will fail:
-			if [ ! -d /mnt/mc/kloader ]; then
-				mkdir -p /mnt/mc/kloader
+			if [ ! -d "/mnt/mc/$MCDIR" ]; then
+				mkdir -p "/mnt/mc/$MCDIR"
 				MOUNTED=$?
 				if [ $MOUNTED -ne 0 ]; then
 					umount /mnt/mc
@@ -1735,7 +1702,7 @@ install_linux_hdd()
 				get_input
 			done
 		fi
-		if [ ! -d /mnt/mc/kloader ]; then
+		if [ ! -d "/mnt/mc/$MCDIR" ]; then
 			umount /mnt/mc
 			MOUNTED=1
 			clear_screen
@@ -1751,34 +1718,50 @@ install_linux_hdd()
 			fi
 		fi
 	done
-	if [ ! -d /mnt/mc/kloader -o ! -e /mnt/mc/kloader/config.txt ]; then
-		if [ ! -d /mnt/mc/kloader ]; then
-			mkdir -p /mnt/mc/kloader
-		fi
-		cat <<EOF >/tmp/config.txt
+	cat <<EOF >/tmp/config.txt
 KernelParameter=
 KernelFileName=
 InitrdFileName=
 Auto Boot=
 EOF
-	else
+	if [ -e /mnt/mc/kloader/config.txt ]; then
 		cp /mnt/mc/kloader/config.txt /tmp/config.txt
 		cp /tmp/config.txt /mnt/disk/installer/oldconfig.txt
 	fi
-	if [ ! -e /mnt/mc/kloader/icon.sys ]; then
-		cp /usr/share/kloader/icon.sys /mnt/mc/kloader/
-	fi
-	if [ ! -e /mnt/mc/kloader/kloader.icn ]; then
-		cp /usr/share/kloader/kloader.icn /mnt/mc/kloader/
+	if [ "$MCDIR" = "kloader" ]; then
+		if [ ! -e "/mnt/mc/$MCDIR/icon.sys" ]; then
+			cp "/usr/share/$MCDIR/icon.sys" "/mnt/mc/$MCDIR/"
+		fi
+		if [ ! -e "/mnt/mc/$MCDIR/$MCDIR" ]; then
+			cp "/usr/share/$MCDIR/kloader.icn" "/mnt/mc/$MCDIR/"
+		fi
 	fi
 	if [ "$VMLINUX" != "" ]; then
-		if [ -e "/mnt/mc/kloader/$VMLINUX" ]; then
-			rm "/mnt/mc/kloader/$VMLINUX"
+		if [ -e "/mnt/mc/$MCDIR/$VMLINUX" ]; then
+			rm "/mnt/mc/$MCDIR/$VMLINUX"
 		fi
-		cp "/mnt/disk/boot/$KERNFILE" "/mnt/mc/kloader/$VMLINUX"
+		echo
+		if [ "$MCDIR" = "kloader" ]; then
+			print_indent "Copying kernel."
+			echo
+			cp "/mnt/disk/boot/$KERNFILE" "/mnt/mc/$MCDIR/$VMLINUX"
+		else
+			if [ "${KERNFILE/.gz/}" != "${KERNFILE}" ]; then
+				# Sony's Linux Toolkit can start uncompressed kernels only.
+				print_indent "Uncompressing kernel."
+				echo
+				gunzip -c "/mnt/disk/boot/$KERNFILE" >"/tmp/$VMLINUX"
+				print_indent "Copying kernel."
+				cp "/tmp/$VMLINUX" "/mnt/mc/$MCDIR/$VMLINUX"
+			else
+				print_indent "Copying kernel."
+				echo
+				cp "/mnt/disk/boot/$KERNFILE" "/mnt/mc/$MCDIR/$VMLINUX"
+			fi
+		fi
 		if [ $? -ne 0 ]; then
-			# Remove borken file:
-			rm "/mnt/mc/kloader/$VMLINUX"
+			# Remove broken file:
+			rm "/mnt/mc/$MCDIR/$VMLINUX"
 			clear_screen
 			print_indent "\e[0;35mFailed to copy kernel on the memory card.\e[0m"
 			print_indent "You need to install the kernel manually."
@@ -1793,13 +1776,36 @@ EOF
 	else
 		sed </tmp/config.txt >/mnt/disk/installer/config.txt -e "s#^KernelParameter=.*#KernelParameter=root=${DEVICE} rootdelay=4#g" -e "s#^Auto Boot=.*#Auto Boot=3#g" -e "s#^InitrdFileName=.*#InitrdFileName=#g" || error_exit
 	fi
-	rm /mnt/mc/kloader/config.txt
-	cp /mnt/disk/installer/config.txt /mnt/mc/kloader/config.txt
-	if [ $? -ne 0 ]; then
-		print_indent "Failed to copy config.txt to $MC"
-		echo
-		print_indent "\e[0;32mHold X to continue.\e[0m"
-		wait_for_X
+	if [ "$MCDIR" = "kloader" ]; then
+		rm -f "/mnt/mc/$MCDIR/config.txt"
+		cp /mnt/disk/installer/config.txt "/mnt/mc/$MCDIR/config.txt"
+		if [ $? -ne 0 ]; then
+			print_indent "Failed to copy config.txt to $MC"
+			echo
+			print_indent "\e[0;32mHold X to continue.\e[0m"
+			wait_for_X
+		fi
+	fi
+	if [ "$MCDIR" = "BWLINUX" ]; then
+		# Use current configuration:
+		cat /proc/cmdline | tr " " "\n" | grep -e "^crtmode=" -e "^xmode=" -e "^video=" | tr "\n" " " >/tmp/videoparms.txt
+			cat /proc/cmdline | tr " " "\n" | grep -e "^video=" | cut -d '=' -f 2 | cut -d ':' -f 2 | tr "," "\n" | grep -e vesa -e pal -e ntsc | tail -n 1 >/tmp/videoformat.txt
+		local VIDEOPARMS="$(cat /tmp/videoparms.txt)"
+		local VIDEOFORMAT="$(cat /tmp/videoformat.txt)"
+		touch /tmp/p2lboot.cnf
+		if [ -e "/mnt/mc/$MCDIR/p2lboot.cnf" ]; then
+			cp "/mnt/mc/$MCDIR/p2lboot.cnf" /tmp/p2lboot.cnf
+		fi
+		echo -e "\"$INSTALLNAME $VIDEOFORMAT\"\t\"$VMLINUX\"\t\"\"\t203\t${DEVICE}\t\"rootdelay=4 $VIDEOPARMS\"\t\"$INSTALLNAME $VIDEOFORMAT $SELECTEDLINUXINSTALL\"" >>/tmp/p2lboot.cnf
+		sort -u /tmp/p2lboot.cnf >/tmp/p2lboot.cnf.sorted
+		rm -f "/mnt/mc/$MCDIR/p2lboot.cnf"
+		cp /tmp/p2lboot.cnf.sorted "/mnt/mc/$MCDIR/p2lboot.cnf"
+		if [ $? -ne 0 ]; then
+			print_indent "Failed to copy p2lboot.cnf to $MC"
+			echo
+			print_indent "\e[0;32mHold X to continue.\e[0m"
+			wait_for_X
+		fi
 	fi
 	umount /mnt/mc
 	umount /mnt/disk
@@ -1807,6 +1813,71 @@ EOF
 		swapoff "$SWAPDEVICE"
 	fi
 	state_set "finished"
+}
+
+########## Stuff not updated ##########
+
+check_for_update()
+{
+	if [ $AUTODETECTIP -eq 1 ]; then
+		local BASEIP="$(ifconfig | grep -e 'inet addr:' | cut -d ':' -f 2 | cut -d ' ' -f 1 | head -n 1 | sed -e 's-\.[0-9]*$--g')"
+		if [ $? -eq 0 -a "$BASEIP" != "" ]; then
+			URLUPDATELOCAL="http://${BASEIP}.42/updatev1.sh"
+		fi
+	fi
+	echo "$URLUPDATELOCAL"
+	wget -O /tmp/update.sh "$URLUPDATELOCAL"
+	if [ $? -ne 0 ]; then
+		echo "$URLUPDATE"
+		wget -O /tmp/update.sh "$URLUPDATE"
+	fi
+	if [ $? -eq 0 ]; then
+		source /tmp/update.sh
+	else
+		print_indent "No update was found."
+		echo
+		print_indent "\e[0;32mHold X to continue\e[0m"
+
+		wait_for_X
+	fi
+}
+
+state_select_install()
+{
+	get_install
+	MAX=$?
+
+	MENUENTRY0="Update installer"
+	select_menu "Please select an installation:" 0 $MAX $SELECTED_INSTALL
+	SELECTED_INSTALL=$?
+
+	if [ $SELECTED_INSTALL -gt $MAX ]; then
+		state_back
+		state_back
+		return
+	fi
+	if [ $SELECTED_INSTALL -eq 0 ]; then
+		SELECTED_INSTALL=1
+		check_for_update
+		return
+	fi
+	# Where to split the FAT partition:
+	eval "SPLITSIZE=\"\$SPLITSIZE$SELECTED_INSTALL\""
+	# Minimum size for the new created partition:
+	eval "MINPARTSIZE=\"\$MINPARTSIZE$SELECTED_INSTALL\""
+	# Reserve memory for swap:
+	eval "SWAPSIZE=\"\$SWAPSIZE$SELECTED_INSTALL\""
+	eval "TGZFILE=\"\$TGZFILE$SELECTED_INSTALL\""
+	eval "KERNSIZE=\"\$KERNSIZE$SELECTED_INSTALL\""
+	eval "KERNFILE=\"\$KERNFILE$SELECTED_INSTALL\""
+	eval "URLBASE=\"\$URLBASE$SELECTED_INSTALL\""
+	eval "URLKERNBASE=\"\$URLKERNBASE$SELECTED_INSTALL\""
+	eval "URLTGZ=\"\$URLTGZ$SELECTED_INSTALL\""
+	eval "URLKERN=\"\$URLKERN$SELECTED_INSTALL\""
+	eval "INSTALLNAME=\"\$INSTALLNAME$SELECTED_INSTALL\""
+	eval "SELECTEDLINUXINSTALL=\"\$MENUENTRY$SELECTED_INSTALL\""
+
+	state_set "show_install"
 }
 
 state_machine()
@@ -1862,6 +1933,20 @@ state_machine()
 	done
 }
 
+update_info()
+{
+	echo
+	print_indent "The update adds GPT support and audio support (audsrv.irx)."
+	print_indent "Audio should work out of the box now in the YouTube player."
+	print_indent "GPT support will only work when the newer kernel was already"
+	print_indent "loaded when starting the installer."
+	print_indent "The usabilty of the YoutTube player has been improved."
+	print_indent "The installer can also install to BWLINUX on MC for use with"
+	print_indent "Sony's Linux Toolkit."
+	echo
+	print_indent "\e[0;32mHold X to continue\e[0m"
+	
+	wait_for_X
+}
+
 state_machine
-
-
