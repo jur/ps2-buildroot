@@ -1,0 +1,10 @@
+--- sdl-1.2.15/src/video/ps2gs/SDL_gsyuv.c	2014-10-05 15:24:59.663754502 +0200
++++ sdl-1.2.15/src/video/ps2gs/SDL_gsyuv.c	2014-10-05 15:25:38.043755222 +0200
+@@ -135,6 +135,7 @@ SDL_Overlay *GS_CreateYUVOverlay(_THIS,
+ 		SDL_OutOfMemory();
+ 		return(NULL);
+ 	}
++	memset(hwdata, 0, sizeof(*hwdata));
+ 	hwdata->ipu_fd = -1;
+ 	hwdata->pixels = (Uint8 *)SDL_malloc(width*height*2);
+ 	if ( hwdata->pixels == NULL ) {
