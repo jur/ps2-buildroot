@@ -567,6 +567,22 @@ get_install()
 	local MAX=1
 
 	local JUHUTUBEBASE="http://$SERVER/projects/kernelloader/files/Juhutube/v2"
+	local JUHUTUBEBASE3="http://$SERVER/projects/kernelloader/files/Juhutube/v3"
+
+	eval "INSTALLNAME$MAX=\"Linux YouTube Player v3\""
+	eval "SPLITSIZE$MAX=167772160"
+	eval "MINPARTSIZE$MAX=104857600"
+	eval "SWAPSIZE$MAX=134217728"
+	eval "TGZFILE$MAX=\"ps2juhutube-image-v3.tgz\""
+	eval "KERNFILE$MAX=\"vmlinux_juhutube_v2.gz\""
+	eval "KERNSIZE$MAX=\"2.4MiB\""
+	eval "URLBASE$MAX=\"$JUHUTUBEBASE3\""
+	eval "URLKERNBASE$MAX=\"$JUHUTUBEBASE\""
+	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
+	eval "URLTGZ$MAX=\"\$URLBASE$MAX/\$TGZFILE$MAX\""
+	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
+	eval "MENUENTRY$MAX=\"Install Juhutube an YouTube Player v3 (default)\""
+	eval "MAX=$(expr $MAX + 1)"
 
 	eval "INSTALLNAME$MAX=\"Linux YouTube Player v2\""
 	eval "SPLITSIZE$MAX=167772160"
@@ -579,8 +595,8 @@ get_install()
 	eval "URLKERNBASE$MAX=\"\$URLBASE$MAX\""
 	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
 	eval "URLTGZ$MAX=\"\$URLBASE$MAX/\$TGZFILE$MAX\""
-	eval "URLKERN$MAX=\"\$URLBASE$MAX/\$KERNFILE$MAX\""
-	eval "MENUENTRY$MAX=\"Install Juhutube an YouTube Player v2 (default)\""
+	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
+	eval "MENUENTRY$MAX=\"Install Juhutube an YouTube Player v2\""
 	eval "MAX=$(expr $MAX + 1)"
 
 	eval "INSTALLNAME$MAX=\"Debian 5.0 v1\""
@@ -1393,6 +1409,7 @@ install_linux()
 		state_back
 		return
 	fi
+	local DOWNLOADDIR="/mnt/disk/installer"
 
 	if [ "$DOSDEVICE" != "" ]; then
 		if [ "$DEVICE" != "$DOSDEVICE" ]; then
@@ -1419,21 +1436,45 @@ install_linux()
 	mkdir -p /mnt/disk/boot || error_exit
 	print_indent "Downloading"
 
+	if [ ! -e "$DOWNLOADDIR" ]; then
+		mkdir -p "$DOWNLOADDIR" || error_exit
+	fi
+
 	FAILED=1
 	while [ $FAILED -ne 0 ]; do
 		echo "$URLTGZ"
+		if [ -e "$DOWNLOADDIR/$TGZFILE" ]; then
+			print_indent "File $TGZFILE found."
+			echo
+			print_indent "\e[0;32mHold X to redownload\e[0m"
+			print_indent "\e[0;32mHold O to use file\e[0m"
+			wait_for_XO
+
+			if [ "$INPUT" = "O" ]; then
+				break
+			fi
+
+			rm "$DOWNLOADDIR/$TGZFILE"
+		fi
 		wget -O "$DOWNLOADDIR/$TGZFILE" "$URLTGZ"
 		FAILED=$?
 		if [ $FAILED -ne 0 ]; then
 			print_indent "Failed download..."
+			df -h "$DOWNLOADDIR"
 			echo
 			print_indent "\e[0;32mHold X to retry\e[0m"
+			print_indent "\e[0;32mHold TRIANGLE to remove old installer files\e[0m"
 			print_indent "\e[0;32mHold O to cancel\e[0m"
-			wait_for_XO
+			wait_for_XOT
 			if [ "$INPUT" = "O" ]; then
 				install_cleanup
 				state_back
 				return
+			fi
+			if [ "$INPUT" = "T" ]; then
+				rm -rf "$DOWNLOADDIR/"*.tgz
+				rm -rf "$DOWNLOADDIR/"*.tar.gz
+				rm -rf "$DOWNLOADDIR/"*.tar.bz2
 			fi
 		fi
 	done
@@ -1442,6 +1483,19 @@ install_linux()
 		FAILED=1
 		while [ $FAILED -ne 0 ]; do
 			echo "$URLKERN"
+			if [ -e "$DOWNLOADDIR/$KERNFILE" ]; then
+				print_indent "File $KERNFILE found."
+				echo
+				print_indent "\e[0;32mHold X to redownload\e[0m"
+				print_indent "\e[0;32mHold O to use file\e[0m"
+				wait_for_XO
+
+				if [ "$INPUT" = "O" ]; then
+					break
+				fi
+
+				rm "$DOWNLOADDIR/$KERNFILE"
+			fi
 			wget -O "$DOWNLOADDIR/$KERNFILE" "$URLKERN"
 			FAILED=$?
 			if [ $FAILED -ne 0 ]; then
@@ -1472,7 +1526,9 @@ install_linux()
 		fi
 	fi
 	if [ "$DEVICE" != "$DOSDEVICE" ]; then
-		umount /mnt/disk
+		if [ "$DOSDEVICE" != "" ]; then
+			umount /mnt/disk
+		fi
 	fi
 	mkdir -p /mnt/mc || error_exit
 	MOUNTED=1
@@ -1628,18 +1684,37 @@ install_linux_hdd()
 	local FAILED=1
 	while [ $FAILED -ne 0 ]; do
 		echo "$URLTGZ"
+		if [ -e "/mnt/disk/installer/$TGZFILE" ]; then
+			print_indent "File $TGZFILE found."
+			echo
+			print_indent "\e[0;32mHold X to redownload\e[0m"
+			print_indent "\e[0;32mHold O to use file\e[0m"
+			wait_for_XO
+
+			if [ "$INPUT" = "O" ]; then
+				break
+			fi
+
+			rm "/mnt/disk/installer/$TGZFILE"
+		fi
 		wget -O "/mnt/disk/installer/$TGZFILE" "$URLTGZ"
 		FAILED=$?
 		if [ $FAILED -ne 0 ]; then
 			print_indent "Failed download..."
+			df -h /mnt/disk
 			echo
 			print_indent "\e[0;32mHold X to retry\e[0m"
+			print_indent "\e[0;32mHold TRIANGLE to remove old installer files\e[0m"
 			print_indent "\e[0;32mHold O to cancel\e[0m"
-			wait_for_XO
+			wait_for_XOT
 			if [ "$INPUT" = "O" ]; then
 				install_cleanup
 				state_back
 				return
+			fi
+			if [ "$INPUT" = "T" ]; then
+				rm -rf /mnt/disk/installer
+				mkdir -p /mnt/disk/installer || error_exit
 			fi
 		fi
 	done
@@ -1647,6 +1722,19 @@ install_linux_hdd()
 	FAILED=1
 	while [ $FAILED -ne 0 ]; do
 		echo "$URLKERN"
+			if [ -e "/mnt/disk/boot/$KERNFILE" ]; then
+				print_indent "File $KERNFILE found."
+				echo
+				print_indent "\e[0;32mHold X to redownload\e[0m"
+				print_indent "\e[0;32mHold O to use file\e[0m"
+				wait_for_XO
+
+				if [ "$INPUT" = "O" ]; then
+					break
+				fi
+
+				rm "/mnt/disk/boot/$KERNFILE"
+			fi
 		wget -O "/mnt/disk/boot/$KERNFILE" "$URLKERN"
 		FAILED=$?
 		if [ $FAILED -ne 0 ]; then
@@ -1936,6 +2024,7 @@ state_machine()
 update_info()
 {
 	echo
+	print_indent "\e[0;32mv2\e[0m"
 	print_indent "The update adds GPT support and audio support (audsrv.irx)."
 	print_indent "Audio should work out of the box now in the YouTube player."
 	print_indent "GPT support will only work when the newer kernel was already"
@@ -1943,6 +2032,11 @@ update_info()
 	print_indent "The usabilty of the YoutTube player has been improved."
 	print_indent "The installer can also install to BWLINUX on MC for use with"
 	print_indent "Sony's Linux Toolkit."
+	echo
+	print_indent "\e[0;32mv3\e[0m"
+	print_indent "Fixed playback of some YouTube videos which were just hanging"
+	print_indent "and needed reboot."
+	print_indent "Increased time waiting for network connection (DHCP client)."
 	echo
 	print_indent "\e[0;32mHold X to continue\e[0m"
 	
