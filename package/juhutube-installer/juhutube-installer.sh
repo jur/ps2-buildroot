@@ -568,6 +568,22 @@ get_install()
 
 	local JUHUTUBEBASE="http://$SERVER/projects/kernelloader/files/Juhutube/v2"
 	local JUHUTUBEBASE3="http://$SERVER/projects/kernelloader/files/Juhutube/v3"
+	local JUHUTUBEBASE6="http://$SERVER/projects/kernelloader/files/Juhutube/v6"
+
+	eval "INSTALLNAME$MAX=\"Linux YouTube Player v6\""
+	eval "SPLITSIZE$MAX=167772160"
+	eval "MINPARTSIZE$MAX=104857600"
+	eval "SWAPSIZE$MAX=134217728"
+	eval "TGZFILE$MAX=\"ps2juhutube-image-v6.tgz\""
+	eval "KERNFILE$MAX=\"vmlinux_juhutube_v2.gz\""
+	eval "KERNSIZE$MAX=\"2.4MiB\""
+	eval "URLBASE$MAX=\"$JUHUTUBEBASE6\""
+	eval "URLKERNBASE$MAX=\"$JUHUTUBEBASE\""
+	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
+	eval "URLTGZ$MAX=\"\$URLBASE$MAX/\$TGZFILE$MAX\""
+	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
+	eval "MENUENTRY$MAX=\"Install Juhutube an YouTube Player v6 (default)\""
+	eval "MAX=$(expr $MAX + 1)"
 
 	eval "INSTALLNAME$MAX=\"Linux YouTube Player v3\""
 	eval "SPLITSIZE$MAX=167772160"
@@ -581,7 +597,7 @@ get_install()
 	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
 	eval "URLTGZ$MAX=\"\$URLBASE$MAX/\$TGZFILE$MAX\""
 	eval "URLKERN$MAX=\"\$URLKERNBASE$MAX/\$KERNFILE$MAX\""
-	eval "MENUENTRY$MAX=\"Install Juhutube an YouTube Player v3 (default)\""
+	eval "MENUENTRY$MAX=\"Install Juhutube an YouTube Player v3\""
 	eval "MAX=$(expr $MAX + 1)"
 
 	eval "INSTALLNAME$MAX=\"Linux YouTube Player v2\""
@@ -1628,6 +1644,7 @@ EOF
 	fi
 	umount /mnt/mc
 	umount "$DOSDIR"
+	umount /mnt/disk
 	if [ "$SWAPDEVICE" != "" ]; then
 		swapoff "$SWAPDEVICE"
 	fi
@@ -2037,6 +2054,11 @@ update_info()
 	print_indent "Fixed playback of some YouTube videos which were just hanging"
 	print_indent "and needed reboot."
 	print_indent "Increased time waiting for network connection (DHCP client)."
+	echo
+	print_indent "\e[0;32mv6\e[0m"
+	print_indent "Add search function (USB keyboard needed)."
+	print_indent "Don't require to login."
+	print_indent "Add update feature for youtube-dl.pl."
 	echo
 	print_indent "\e[0;32mHold X to continue\e[0m"
 	

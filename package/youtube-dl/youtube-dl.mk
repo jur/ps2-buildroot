@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-YOUTUBE_DL_VERSION = 2014.08.10
+YOUTUBE_DL_VERSION = 2015.02.06
 YOUTUBE_DL_SOURCE = youtube-dl
 YOUTUBE_DL_SITE = http://yt-dl.org/downloads/$(YOUTUBE_DL_VERSION)
 YOUTUBE_DL_LICENSE = BSD-3c
